@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
+    <script type="text/javascript" src="http://getbootstrap.com/dist/js/bootstrap.js"></script>
+    <link type="text/css" rel="stylesheet" href="http://getbootstrap.com/dist/css/bootstrap.css" />
+    <link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/smoothness/jquery-ui.css" />
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="qrcode.js"></script>
+
+    <style>
+        .slider {
+            float: left;
+            clear: left;
+            width: 400px;
+            margin: 5px;
+        }
+
+        .slider .ui-slider-range {
+            background: #729fcf;
+        }
+
+        .slider .ui-slider-handle {
+            border-color: #729fcf;
+        }
+    </style>
+
+    <script>
+
+        var centerTagColor;
+        var QRCodeContent;
+        var QRCodeErrorCorrectLevel;
+
+        $(function () {
+            $("#input-centerTagColor").on('change', function () {
+                centerTagColor = this.value;
+                refresh();
+            });
+
+            $("#btn-create").on('click', function () {
+                QRCodeContent = document.getElementById("input-QRCodeContent").value;
+                QRCodeErrorCorrectLevel = document.getElementById("select-QRCodeErrorLevel").value;
+                refresh();
+            });
+
+            $("#slider-centerTagSize").slider({
+                orientation: "horizontal",
+                range: "min",
+                max: 100,
+                min: 1,
+                value: 20,
+                slide: refresh,
+                change: refresh
+            });
+
+            $("#slider-number").slider({
+                orientation: "horizontal",
+                range: "min",
+                max: 100,
+                min: 1,
+                value: 8,
+                slide: refresh,
+                change: refresh
+            });
+
+            $("#slider-blackBorderSize").slider({
+                orientation: "horizontal",
+                range: "min",
+                max: 100,
+                min: 1,
+                value: 10,
+                slide: refresh,
+                change: refresh
+            });
+
+            $("#slider-colorBorderSize").slider({
+                orientation: "horizontal",
+                range: "min",
+                max: 100,
+                min: 1,
+                value: 30,
+                slide: refresh,
+                change: refresh
+            });
+
+            $("#slider-qrSize").slider({
+                orientation: "horizontal",
+                range: "min",
+                max: 500,
+                min: 1,
+                value: 200,
+                slide: refresh,
+                change: refresh
+            });
+        });
+    </script>
+
+    <script>
+        function refresh() {
+            var c = document.getElementById("myCanvas");
+            var ctx = c.getContext("2d");
+
+            var n = $("#slider-number").slider("value");
+            var blackBorder = $("#slider-blackBorderSize").slider("value");
+            var colorBorder = $("#slider-colorBorderSize").slider("value");
+            var qrSize = $("#slider-qrSize").slider("value");
+            var centerTagSize = $("#slider-centerTagSize").slider("value");
+            var canvasWidth = c.width;
+            var canvasHeight = c.height;
+            var centerX = canvasWidth / 2;
+            var centerY = canvasHeight / 2;
+
+            var labelNumber = document.getElementById("label-number");
+            labelNumber.innerHTML = "Number of Features: " + n;
+            var labelCenterTagColor = document.getElementById("label-centerTagColor");
+            labelCenterTagColor.innerHTML = "Center Tag Color: " + centerTagColor;
+            var labelCenterTagSize = document.getElementById("label-centerTagSize");
+            labelCenterTagSize.innerHTML = "Center Tag Size: " + centerTagSize;
+            var labelQRCodeSize = document.getElementById("label-qrSize");
+            labelQRCodeSize.innerHTML = "QRCode Size: " + qrSize;
+            var labelBlackBorder = document.getElementById("label-blackBorderSize");
+            labelBlackBorder.innerHTML = "Black Border Size: " + blackBorder;
+            var labelColorBorder = document.getElementById("label-colorBorderSize");
+            labelColorBorder.innerHTML = "Color Border Size: " + colorBorder;
+
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, qrSize + 2 * blackBorder + colorBorder, 0, 2 * Math.PI);
+            ctx.lineTo(centerX, centerY);
+            ctx.closePath();
+            ctx.fillStyle = "black";
+            ctx.fill();
+
+            for (i = 0; i <= (n * 4) ; i += 2) {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, qrSize + blackBorder + colorBorder, i * (2 * Math.PI / (n * 4)), (i + 1) * (2 * Math.PI / (n * 4)));
+                ctx.lineTo(centerX, centerY);
+                ctx.closePath();
+                ctx.fillStyle = "yellow";
+                ctx.fill();
+            }
+
+            for (i = 1; i <= (n * 4) ; i += 4) {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, qrSize + blackBorder + colorBorder, i * (2 * Math.PI / (n * 4)), (i + 1) * (2 * Math.PI / (n * 4)));
+                ctx.lineTo(centerX, centerY);
+                ctx.closePath();
+                ctx.fillStyle = "red";
+                ctx.fill();
+            }
+
+            for (i = 3; i <= (n * 4) ; i += 4) {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, qrSize + blackBorder + colorBorder, i * (2 * Math.PI / (n * 4)), (i + 1) * (2 * Math.PI / (n * 4)));
+                ctx.lineTo(centerX, centerY);
+                ctx.closePath();
+                ctx.fillStyle = "#00A0FF";
+                ctx.fill();
+            }
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, qrSize + blackBorder, 0, 2 * Math.PI);
+            ctx.lineTo(centerX, centerY);
+            ctx.closePath();
+            ctx.fillStyle = "black";
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, qrSize, 0, 2 * Math.PI);
+            ctx.lineTo(centerX, centerY);
+            ctx.closePath();
+            ctx.fillStyle = "white";
+            ctx.fill();
+
+            var qrcode = new QRCode(-1, QRErrorCorrectLevel.H);
+            switch (Number(QRCodeErrorCorrectLevel)) {
+                case 0:
+                    qrcode = new QRCode(-1, QRErrorCorrectLevel.H);
+                    break;
+                case 1:
+                    qrcode = new QRCode(-1, QRErrorCorrectLevel.Q);
+                    break;
+                case 2:
+                    qrcode = new QRCode(-1, QRErrorCorrectLevel.M);
+                    break;
+                case 3:
+                    qrcode = new QRCode(-1, QRErrorCorrectLevel.L);
+                    break;
+            }
+
+            qrcode.addData(QRCodeContent);
+            qrcode.make();
+
+            var tileW = (qrSize) / qrcode.getModuleCount();
+            var tileH = (qrSize) / qrcode.getModuleCount();
+
+            for (var row = 0; row < qrcode.getModuleCount() ; row++) {
+                for (var col = 0; col < qrcode.getModuleCount() ; col++) {
+                    ctx.fillStyle = qrcode.isDark(row, col) ? "#000000" : "#ffffff";
+                    var w = (Math.ceil((col + 1) * tileW) - Math.floor(col * tileW));
+                    var h = (Math.ceil((row + 1) * tileW) - Math.floor(row * tileW));
+                    ctx.fillRect((canvasWidth - qrSize) / 2 + Math.round(col * tileW), (canvasHeight - qrSize) / 2 + Math.round(row * tileH), w, h);
+                }
+            }
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, centerTagSize, 0, 2 * Math.PI);
+            ctx.lineTo(centerX, centerY);
+            ctx.closePath();
+            ctx.fillStyle = centerTagColor;
+            ctx.fill();
+        }
+    </script>
+
+    <title>Visual Mark Generator</title>
+
+</head>
+
+<body>
+
+    <script>
+        $(document).ready(function () {
+            centerTagColor = "#00A0FF";
+            QRCodeContent = "";
+            QRCodeErrorCorrectLevel = 0;
+            refresh();
+        });
+    </script>
+
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <nav class="navbar navbar-default navbar-static-top" role="navigation">
+                    <div class="navbar-header">
+                        <div class="navbar-brand">Visual Mark Generator</div>
+                    </div>
+                </nav>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">
+                                    Visual Mark
+                                </h3>
+                            </div>
+                            <div class="panel-body">
+
+                                <canvas id="myCanvas" width="700" height="700" style="border:1px solid #d3d3d3;" class="center-block">
+                                    Your browser does not support the HTML5 canvas tag.
+                                </canvas>
+                                </br>
+                                <a href="#" download="VisualMark.png" onclick="this.href=myCanvas.toDataURL();">
+                                    <button type="button" class="btn btn-success btn-block">
+                                        Download
+                                    </button>
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">
+                                    Setting
+                                </h3>
+                            </div>
+                            <div class="panel-body">
+
+                                <form role="form">
+
+                                    <div class="form-group">
+                                        <h3><span><label id="label-centerTagColor">Center Tag Color:</label></span></h3>
+                                        <input type="color" class="form-control" id="input-centerTagColor" value="#00A0FF" />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <h3><span><label id="label-centerTagSize">Center Tag Size:</label></span></h3>
+                                        <button type="button" class="btn btn-default pull-left" onclick="javascript:centerTagSize=$('#slider-centerTagSize').slider('value')-1;$('#slider-centerTagSize').slider('option','value',centerTagSize)">
+                                            <span class="glyphicon glyphicon-minus"></span>
+                                        </button>
+                                        <div class="pull-left">
+                                            <div class="slider" id="slider-centerTagSize"> </div>
+                                        </div>
+                                        <button type="button" class="btn btn-default pull-left" onclick="javascript:centerTagSize=$('#slider-centerTagSize').slider('value')+1;$('#slider-centerTagSize').slider('option','value',centerTagSize)">
+                                            <span class="glyphicon glyphicon-plus"></span>
+                                        </button>
+                                    </div>
+                                    </br>
+
+                                    <div class="form-group">
+
+                                        <h3><span><label>QRCode Content:</label></span></h3>
+                                        <input type="text" class="form-control" id="input-QRCodeContent" />
+                                        </br>
+                                        <select class="form-control" id="select-QRCodeErrorLevel">
+                                            <option value=0>Error Correction Level H (30%)</option>
+                                            <option value=1>Error Correction Level Q (25%)</option>
+                                            <option value=2>Error Correction Level M (15%)</option>
+                                            <option value=3>Error Correction Level L (7%)</option>
+                                        </select>
+                                        </br>
+                                        <button type="button" class="btn btn-primary" id="btn-create">
+                                            Create
+                                        </button>
+                                    </div>
+                                    <div class="form-group">
+                                        <h3><span><label id="label-qrSize">QRCode Size:</label></span></h3>
+                                        <button type="button" class="btn btn-default pull-left" onclick="javascript:qrSize=$('#slider-qrSize').slider('value')-1;$('#slider-qrSize').slider('option','value',qrSize)">
+                                            <span class="glyphicon glyphicon-minus"></span>
+                                        </button>
+                                        <div class="pull-left">
+                                            <div class="slider" id="slider-qrSize"> </div>
+                                        </div>
+                                        <button type="button" class="btn btn-default pull-left" onclick="javascript: qrSize = $('#slider-qrSize').slider('value') + 1; $('#slider-qrSize').slider('option', 'value', qrSize)">
+                                            <span class="glyphicon glyphicon-plus"></span>
+                                        </button>
+                                    </div>
+                                    </br>
+                                    <div class="form-group">
+                                        <h3><span><label id="label-number">Number of Feature:</label></span></h3>
+                                        <button type="button" class="btn btn-default pull-left" onclick="javascript:n=$('#slider-number').slider('value')-1;$('#slider-number').slider('option','value',n)">
+                                            <span class="glyphicon glyphicon-minus"></span>
+                                        </button>
+                                        <div class="pull-left">
+                                            <div class="slider" id="slider-number"> </div>
+                                        </div>
+                                        <button type="button" class="btn btn-default pull-left" onclick="javascript:n=$('#slider-number').slider('value')+1;$('#slider-number').slider('option','value',n)">
+                                            <span class="glyphicon glyphicon-plus"></span>
+                                        </button>
+                                    </div>
+                                    </br>
+                                    <div class="form-group">
+                                        <h3><span><label id="label-blackBorderSize">Black Border Size:</label></span></h3>
+
+                                        <button type="button" class="btn btn-default pull-left" onclick="javascript:blackBorder=$('#slider-blackBorderSize').slider('value')-1;$('#slider-blackBorderSize').slider('option','value',blackBorder)">
+                                            <span class="glyphicon glyphicon-minus"></span>
+                                        </button>
+                                        <div class="pull-left">
+                                            <div class="slider" id="slider-blackBorderSize"> </div>
+                                        </div>
+                                        <button type="button" class="btn btn-default pull-left" onclick="javascript:blackBorder=$('#slider-blackBorderSize').slider('value')+1;$('#slider-blackBorderSize').slider('option','value',blackBorder)">
+                                            <span class="glyphicon glyphicon-plus"></span>
+                                        </button>
+                                    </div>
+                                    </br>
+                                    <div class="form-group">
+                                        <h3><span><label id="label-colorBorderSize">Color Border Size:</label></span></h3>
+                                        <button type="button" class="btn btn-default pull-left" onclick="javascript:colorBorder=$('#slider-colorBorderSize').slider('value')-1;$('#slider-colorBorderSize').slider('option','value',colorBorder)">
+                                            <span class="glyphicon glyphicon-minus"></span>
+                                        </button>
+                                        <div class="pull-left">
+                                            <div class="slider" id="slider-colorBorderSize"> </div>
+                                        </div>
+                                        <button type="button" class="btn btn-default pull-left" onclick="javascript:colorBorder=$('#slider-colorBorderSize').slider('value')+1;$('#slider-colorBorderSize').slider('option','value',colorBorder)">
+                                            <span class="glyphicon glyphicon-plus"></span>
+                                        </button>
+                                    </div>
+                                    </br>
+
+                                </form>
+
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </br>
+
+</body>
+</html>
